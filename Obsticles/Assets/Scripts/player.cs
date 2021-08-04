@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class player : MonoBehaviour
 {
+    
     Rigidbody rb;
     bool grounded = false;
     [SerializeField]
@@ -16,26 +17,35 @@ public class player : MonoBehaviour
     bool stopTouch = false;
     public float swipeRange;
     public float tapRange;
-
-    
+    public bool gameOver = false;
+    public GameObject panel;
+    public GameObject theChar;
 
     public Text text;
-    string position = " already mid";
+    string position = "already mid";
+    float distanceRun = 0.0f;
     bool left = false;
     bool mid = true;
     bool right = false;
     float speed = 10f;
-
+    Animator anim;
     void Start()
     {
         text.text = position;
         rb = GetComponent<Rigidbody>();
+        anim = this.GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        text.text = position;
+        text.text = distanceRun.ToString("0.00").Replace(",", "."); ;
+        if (!gameOver)
+        {
+            distanceRun += 0.001f;
+            Time.timeScale += 0.0001f;
+        }
+            
         if(mid)
         {
             Vector3 target = new Vector3(0f, transform.localPosition.y, transform.localPosition.z);
@@ -62,7 +72,12 @@ public class player : MonoBehaviour
         if(collision.gameObject.tag == "ground")
             grounded = true;
         if (collision.gameObject.tag == "box")
-            SceneManager.LoadScene(2);
+        {
+            panel.SetActive(true);
+            Time.timeScale = 0f;
+            gameOver = true;
+        }
+            
     }
 
     private void OnCollisionExit(Collision collision)
@@ -112,6 +127,9 @@ public class player : MonoBehaviour
                         left = true;
                         right = false;
                         position = "mid to left";
+                        anim.ResetTrigger("left");
+                        anim.SetTrigger("left");
+                        
                         //Move("mid", "left");
                         //transform.localPosition = new Vector3(-1f, transform.localPosition.y, transform.localPosition.z);
                     }
@@ -122,6 +140,9 @@ public class player : MonoBehaviour
                         mid = true;
                         left = false;
                         position = "right to mid";
+                        anim.ResetTrigger("left");
+                        anim.SetTrigger("left");
+                        
                         //Move("right", "left");
                         //transform.localPosition = new Vector3(0f, transform.localPosition.y, transform.localPosition.z);
                     }
@@ -138,6 +159,8 @@ public class player : MonoBehaviour
                         mid = true;
                         right = false;
                         position = "left to mid";
+                        anim.ResetTrigger("right");
+                        anim.SetTrigger("right");
                         //Move("left", "right");
                         //transform.localPosition = new Vector3(0f, transform.localPosition.y, transform.localPosition.z);
                     }
@@ -147,6 +170,8 @@ public class player : MonoBehaviour
                         left = false;
                         right = true;
                         position = "mid to right";
+                        anim.ResetTrigger("right");
+                        anim.SetTrigger("right");
                         //Move("mid", "right");
                         //transform.localPosition = new Vector3(1f, transform.localPosition.y, transform.localPosition.z);
                     }
